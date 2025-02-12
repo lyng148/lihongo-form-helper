@@ -1,12 +1,13 @@
 document.addEventListener('DOMContentLoaded', function() {
-// Load saved settings
-    chrome.storage.sync.get(['apiKey', 'isDisabled'], (data) => {
+    // Load saved settings
+    chrome.storage.sync.get(['apiKey', 'isDisabled', 'selectedModel'], (data) => {
         document.getElementById('apiKey').value = data.apiKey || '';
         document.getElementById('temporaryDisable').checked = data.isDisabled || false;
+        document.getElementById('modelSelect').value = data.selectedModel || 'gemini-2.0-flash'; // Default model
         updateDisabledState(data.isDisabled || false);
     });
 
-// Save API key
+    // Save API key
     document.getElementById('saveApiKey').addEventListener('click', () => {
         const apiKey = document.getElementById('apiKey').value;
         if (!apiKey) {
@@ -23,7 +24,15 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-// Test API connection
+    // Handle model selection change
+    document.getElementById('modelSelect').addEventListener('change', (e) => {
+        const selectedModel = e.target.value;
+        chrome.storage.sync.set({ selectedModel }, () => {
+            showStatus('Model preference saved!', 'success');
+        });
+    });
+
+    // Test API connection
     document.getElementById('testApi').addEventListener('click', async () => {
         const apiKey = document.getElementById('apiKey').value;
         if (!apiKey) {
@@ -44,12 +53,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-// Handle temporary disable toggle
+    // Handle temporary disable toggle
     document.getElementById('temporaryDisable').addEventListener('change', (e) => {
         const isDisabled = e.target.checked;
         chrome.storage.sync.set({ isDisabled }, () => {
             updateDisabledState(isDisabled);
-// Send message to content script about state change
+            // Send message to content script about state change
             chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
                 if (tabs[0]) {
                     chrome.tabs.sendMessage(tabs[0].id, {
@@ -77,6 +86,7 @@ function showStatus(message, type) {
     status.style.display = 'block';
     status.className = 'status ' + type;
 
+    // Hide status message after 4 seconds
     setTimeout(() => {
         status.style.display = 'none';
     }, 4000);
@@ -84,7 +94,8 @@ function showStatus(message, type) {
 
 async function testGeminiAPI(apiKey) {
     try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+        const selectedModel = document.getElementById('modelSelect').value;
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${apiKey}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

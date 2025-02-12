@@ -267,9 +267,16 @@ function calculateSimilarity(str1, str2) {
     return 1 - (matrix[str2.length][str1.length] / maxLength);
 }
 
-// Hàm gọi Gemini AI API
+// Update the generateText function in content.js
 async function generateText(prompt, apiKey) {
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+    // Get the selected model from storage
+    const modelData = await new Promise((resolve) => {
+        chrome.storage.sync.get('selectedModel', (data) => {
+            resolve(data.selectedModel || 'gemini-2.0-flash'); // Default to Gemini 2.0 Flash if not set
+        });
+    });
+
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelData}:generateContent?key=${apiKey}`;
 
     const requestOptions = {
         method: "POST",
