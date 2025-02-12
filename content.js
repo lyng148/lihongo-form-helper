@@ -127,13 +127,13 @@ async function getAnswersFromGemini(questions, apiKey) {
 
     for (const question of questions) {
         try {
-            let prompt;
+            let prompt = "Always anwser in vietnamese.";
             if (question.type === "radio" && question.options.length > 0) {
-                prompt = `Choose 1 best answer from these options: [${question.options.join("], [")}]. Question: ${question.text}. Respond with ONLY the exact text of the chosen option, no explanations.`;
+                prompt += `Choose 1 best answer from these options: [${question.options.join("], [")}]. Question: ${question.text}. Respond with ONLY the exact text of the chosen option, no explanations.`;
             } else if (question.type === "checkbox" && question.options.length > 0) {
-                prompt = `Choose appropriate answers from these options: [${question.options.join("], [")}]. Question: ${question.text}. Respond with ONLY the exact text of the chosen options, separated by commas if multiple.`;
+                prompt += `Choose appropriate answers from these options: [${question.options.join("], [")}]. Question: ${question.text}. Respond with ONLY the exact text of the chosen options, separated by commas if multiple.`;
             } else {
-                prompt = `Answer briefly: ${question.text}, if question after text \"Answer briefly:\" is ask about name, answer to me only "Nguyễn Bùi Việt Linh", in the response you réponse to thís
+                prompt += `Answer briefly: ${question.text}, if question after text \"Answer briefly:\" is ask about name, answer to me only "Nguyễn Bùi Việt Linh", in the response you réponse to thís
                 request, if it ask student number, say"20225733"`;
             }
 
@@ -269,7 +269,7 @@ function calculateSimilarity(str1, str2) {
 
 // Hàm gọi Gemini AI API
 async function generateText(prompt, apiKey) {
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
     const requestOptions = {
         method: "POST",
