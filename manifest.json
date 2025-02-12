@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "Lihongo Form Helper",
+  "version": "1.0",
+  "description": "Auto fill form",
+  "permissions": [
+    "activeTab",
+    "storage"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://docs.google.com/forms/*"],
+      "js": ["content.js"]
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  }
+}

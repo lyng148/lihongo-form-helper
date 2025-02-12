@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Gemini AI Form Filler</title>
+        <style>
+            body {
+                width: 300px;
+                padding: 15px;
+                font-family: Arial, sans-serif;
+            }
+
+            .container {
+                background-color: #ffffff;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+
+            h1 {
+                color: #1a73e8;
+                font-size: 20px;
+                margin-bottom: 20px;
+                text-align: center;
+            }
+
+            .form-group {
+                margin-bottom: 15px;
+            }
+
+            label {
+                display: block;
+                margin-bottom: 5px;
+                color: #5f6368;
+                font-size: 14px;
+            }
+
+            input[type="text"] {
+                width: 100%;
+                padding: 8px;
+                border: 1px solid #dadce0;
+                border-radius: 4px;
+                box-sizing: border-box;
+            }
+
+            input[type="text"]:focus {
+                outline: none;
+                border-color: #1a73e8;
+            }
+
+            .button-group {
+                display: flex;
+                gap: 10px;
+                margin-top: 15px;
+            }
+
+            button {
+                flex: 1;
+                padding: 8px 16px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 14px;
+                transition: background-color 0.2s;
+            }
+
+            #saveApiKey {
+                background-color: #1a73e8;
+                color: white;
+            }
+
+            #saveApiKey:hover {
+                background-color: #1557b0;
+            }
+
+            #testApi {
+                background-color: #f8f9fa;
+                border: 1px solid #dadce0;
+                color: #3c4043;
+            }
+
+            #testApi:hover {
+                background-color: #f1f3f4;
+            }
+
+            .status {
+                margin-top: 15px;
+                padding: 10px;
+                border-radius: 4px;
+                font-size: 14px;
+                display: none;
+            }
+
+            .success {
+                background-color: #e6f4ea;
+                color: #1e8e3e;
+            }
+
+            .error {
+                background-color: #fce8e6;
+                color: #d93025;
+            }
+
+            .settings {
+                margin-top: 20px;
+                padding: 15px;
+                border-top: 1px solid #dadce0;
+            }
+
+            .switch {
+                position: relative;
+                display: inline-block;
+                width: 40px;
+                height: 20px;
+            }
+
+            .switch input {
+                opacity: 0;
+                width: 0;
+                height: 0;
+            }
+
+            .slider {
+                position: absolute;
+                cursor: pointer;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: #ccc;
+                transition: .4s;
+                border-radius: 20px;
+            }
+
+            .slider:before {
+                position: absolute;
+                content: "";
+                height: 16px;
+                width: 16px;
+                left: 2px;
+                bottom: 2px;
+                background-color: white;
+                transition: .4s;
+                border-radius: 50%;
+            }
+
+            input:checked + .slider {
+                background-color: #1a73e8;
+            }
+
+            input:checked + .slider:before {
+                transform: translateX(20px);
+            }
+
+            .disabled-notice {
+                display: none;
+                margin-top: 10px;
+                padding: 8px;
+                background-color: #fef7e0;
+                color: #b45309;
+                border-radius: 4px;
+                font-size: 12px;
+                text-align: center;
+            }
+
+            .disabled-notice.visible {
+                display: block;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Lihongo Form Helper</h1>
+
+            <div class="form-group">
+                <label for="apiKey">API Key: <br>Don't have? Get one <a href="https://aistudio.google.com/apikey" target="_blank">here!</a></label>
+                <input type="text" id="apiKey" placeholder="Enter your Gemini API key" />
+            </div>
+
+            <div class="button-group">
+                <button id="saveApiKey">Save API Key</button>
+                <button id="testApi">Test API</button>
+            </div>
+
+            <div id="status" class="status"></div>
+
+            <div class="settings">
+                <div class="form-group">
+                    <label>
+                        Temporarily Disable Extension
+                        <label class="switch">
+                            <input type="checkbox" id="temporaryDisable">
+                            <span class="slider"></span>
+                        </label>
+                    </label>
+                </div>
+                <div id="disabledNotice" class="disabled-notice">
+                    Extension is temporarily disabled. Toggle switch to re-enable.
+                </div>
+            </div>
+        </div>
+        <script src="popup.js"></script>
+    </body>
+</html>
+
+
