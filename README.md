@@ -1,4 +1,8 @@
 # Lihongo Form Helper
+<p align="center">
+  <img src="./images/icon128.png" alt="Lihongo Form Helper Logo">
+</p>
+
 
 A powerful Chrome/Edge extension that helps you automatically fill Google Forms using AI assistance.
 
