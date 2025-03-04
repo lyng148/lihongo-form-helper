@@ -1,4 +1,5 @@
 // content.js
+
 console.log("Gemini AI Form Filler extension is running!");
 
 // Check disabled state before running any functionality
@@ -10,20 +11,44 @@ async function checkIfEnabled() {
     });
 }
 
-// Hàm chính để tự động điền form
+let isFilling = false;
+let isPaused = false;
+let currentQuestionIndex = 0;
+let totalQuestions = 0;
+
+// Listen for messages from popup
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.action === 'startFilling') {
+        isFilling = true;
+        isPaused = message.isPaused;
+        fillForm();
+    } else if (message.action === 'stopFilling') {
+        isFilling = false;
+        isPaused = false;
+        currentQuestionIndex = 0;
+        updateProgress(0);
+        sendStatus('Stopped', 'inactive');
+    } else if (message.action === 'updatePauseState') {
+        isPaused = message.isPaused;
+        sendStatus(isPaused ? 'Paused' : 'Filling form...', isPaused ? 'paused' : 'active');
+    }
+});
+
+// Modified fillForm function
 async function fillForm() {
     try {
         // First check if extension is enabled
         const isEnabled = await checkIfEnabled();
         if (!isEnabled) {
             console.log("Extension is temporarily disabled");
+            sendStatus('Extension is disabled', 'error');
             return;
         }
 
         // 1. Lấy API key từ storage
         const apiKey = await getApiKey();
         if (!apiKey) {
-            alert("Please enter API key in extension popup!");
+            sendStatus('Please enter API key in settings', 'error');
             return;
         }
 
@@ -31,17 +56,45 @@ async function fillForm() {
         const questions = getQuestions();
         if (questions.length === 0) {
             console.warn("No questions found in the form");
+            sendStatus('No questions found', 'error');
             return;
         }
 
-        // 3. Gửi câu hỏi đến Gemini AI và nhận câu trả lời
-        const answers = await getAnswersFromGemini(questions, apiKey);
+        totalQuestions = questions.length;
+        updateProgress(0);
 
-        // 4. Điền câu trả lời vào form
-        fillAnswers(questions, answers);
+        // 3. Gửi câu hỏi đến Gemini AI và nhận câu trả lời
+        for (let i = 0; i < questions.length; i++) {
+            if (!isFilling) break;
+            while (isPaused) {
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                if (!isFilling) break;
+            }
+            if (!isFilling) break;
+
+            currentQuestionIndex = i;
+            const question = questions[i];
+            
+            try {
+                sendQuestionStatus(question.text, 'pending');
+                const answer = await getAnswerFromGemini(question, apiKey);
+                await fillAnswer(question, answer);
+                sendQuestionStatus(question.text, 'completed');
+                updateProgress((i + 1) / totalQuestions * 100);
+            } catch (error) {
+                console.error(`Error processing question ${i + 1}:`, error);
+                sendQuestionStatus(question.text, 'error');
+            }
+        }
+
+        if (isFilling) {
+            sendStatus('Form completed', 'active');
+            isFilling = false;
+        }
     } catch (error) {
         console.error("Error in fillForm:", error);
-        alert("An error occurred while filling the form. Please check console for details.");
+        sendStatus('An error occurred', 'error');
+        isFilling = false;
     }
 }
 
@@ -56,12 +109,13 @@ async function getApiKey() {
 
 // Hàm phân tích cấu trúc form để lấy danh sách câu hỏi
 function getQuestions() {
-    const questionElements = document.querySelectorAll(".Qr7Oae");
+    // Update selector to match current form structure
+    const questionElements = document.querySelectorAll(".Qr7Oae[role='listitem']");
     const questions = [];
 
     questionElements.forEach((element) => {
-        // Tìm tiêu đề câu hỏi
-        const questionTextElement = element.querySelector(".M7eMe");
+        // Update selector for question text
+        const questionTextElement = element.querySelector(".M7eMe, .HoXoMd");
         if (!questionTextElement) return;
 
         const questionType = determineQuestionType(element);
@@ -75,9 +129,9 @@ function getQuestions() {
             options: []
         };
 
-        // Thu thập các lựa chọn cho câu hỏi radio/checkbox
+        // Update selector for radio/checkbox options
         if (questionType === "radio" || questionType === "checkbox") {
-            const options = element.querySelectorAll(".docssharedWizToggleLabeledContainer");
+            const options = element.querySelectorAll(".docssharedWizToggleLabeledContainer, .nWQGrd");
             options.forEach(option => {
                 const optionText = option.textContent.trim().replace(/\s+/g, " ");
                 question.options.push(optionText);
@@ -93,26 +147,23 @@ function getQuestions() {
 
 // Hàm xác định loại câu hỏi
 function determineQuestionType(questionElement) {
-    // Check for text input questions
-    const textInput = questionElement.querySelector('input[type="text"], .whsOnd.zHQkBf');
+    // Update selectors for different question types
+    const textInput = questionElement.querySelector('input[type="text"], .whsOnd.zHQkBf, .KHxj8b.tL9Q4c');
     if (textInput) {
         return "text";
     }
 
-    // Check for radio button questions
-    const radioInputs = questionElement.querySelectorAll('.nWQGrd input[type="radio"], .Od2TWd');
+    const radioInputs = questionElement.querySelectorAll('.nWQGrd input[type="radio"], .Od2TWd, .docssharedWizToggleLabeledContainer');
     if (radioInputs.length > 0) {
         return "radio";
     }
 
-    // Check for checkbox questions
-    const checkboxInputs = questionElement.querySelectorAll('input[type="checkbox"], .Y5sE8d');
+    const checkboxInputs = questionElement.querySelectorAll('input[type="checkbox"], .Y5sE8d, .docssharedWizToggleLabeledContainer');
     if (checkboxInputs.length > 0) {
         return "checkbox";
     }
 
-    // Check for dropdown questions
-    const dropdown = questionElement.querySelector('select, .MocG8c');
+    const dropdown = questionElement.querySelector('select, .MocG8c, .quantumWizMenuPaperselectEl');
     if (dropdown) {
         return "dropdown";
     }
@@ -120,75 +171,55 @@ function determineQuestionType(questionElement) {
     return "unknown";
 }
 
-// Hàm gửi câu hỏi đến Gemini AI API và nhận câu trả lời
-async function getAnswersFromGemini(questions, apiKey) {
-    const answers = [];
-    const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
-
-    for (const question of questions) {
-        try {
-            let prompt = "Always anwser in vietnamese.";
-            if (question.type === "radio" && question.options.length > 0) {
-                prompt += `Choose 1 best answer from these options: [${question.options.join("], [")}]. Question: ${question.text}. Respond with ONLY the exact text of the chosen option, no explanations.`;
-            } else if (question.type === "checkbox" && question.options.length > 0) {
-                prompt += `Choose appropriate answers from these options: [${question.options.join("], [")}]. Question: ${question.text}. Respond with ONLY the exact text of the chosen options, separated by commas if multiple.`;
-            } else {
-                prompt += `Answer briefly: ${question.text}, if question after text \"Answer briefly:\" is ask about name, answer to me only "Nguyễn Bùi Việt Linh", in the response you réponse to thís
-                request, if it ask student number, say"20225733"`;
-            }
-
-            console.log("Sending prompt to Gemini:", prompt);
-            const answer = await generateText(prompt, apiKey);
-            answers.push(answer.trim());
-
-            // Add a small delay between requests to avoid rate limiting
-            await delay(1500);
-        } catch (error) {
-            console.error(`Error getting answer for: ${question.text}`, error);
-            answers.push("");
-        }
+// Modified getAnswerFromGemini function
+async function getAnswerFromGemini(question, apiKey) {
+    let prompt;
+    if (question.type === "radio" && question.options.length > 0) {
+        prompt = `Choose 1 best answer from these options: [${question.options.join("], [")}]. Question: ${question.text}. Respond with ONLY the exact text of the chosen option, no explanations.`;
+    } else if (question.type === "checkbox" && question.options.length > 0) {
+        prompt = `Choose appropriate answers from these options: [${question.options.join("], [")}]. Question: ${question.text}. Respond with ONLY the exact text of the chosen options, separated by commas if multiple.`;
+    } else {
+        prompt = `Answer briefly: ${question.text}, if question after text \"Answer briefly:\" is ask about name, answer to me only "Nguyen Bui Viet Linh", in the response you réponse to thís request, if it ask student number, say"20225733"`;
     }
-    return answers;
+
+    console.log("Sending prompt to Gemini:", prompt);
+    return await generateText(prompt, apiKey);
 }
 
-// Hàm điền câu trả lời vào form
-function fillAnswers(questions, answers) {
-    for (let i = 0; i < questions.length; i++) {
-        try {
-            const question = questions[i];
-            const answer = answers[i];
-
-            if (!answer) {
-                console.warn(`No answer provided for question: ${question.text}`);
-                continue;
-            }
-
-            switch (question.type) {
-                case "text":
-                    fillTextInput(question.element, answer);
-                    break;
-                case "radio":
-                    selectRadioButton(question.element, answer);
-                    break;
-                case "checkbox":
-                    const multipleAnswers = answer.split(',').map(a => a.trim());
-                    selectCheckboxes(question.element, multipleAnswers);
-                    break;
-                default:
-                    console.warn(`Unsupported question type: ${question.type}`);
-            }
-        } catch (error) {
-            console.error(`Error filling answer for question ${i + 1}:`, error);
+// Modified fillAnswer function
+async function fillAnswer(question, answer) {
+    try {
+        switch (question.type) {
+            case "text":
+                await fillTextInput(question.element, answer);
+                break;
+            case "radio":
+                await selectRadioButton(question.element, answer);
+                break;
+            case "checkbox":
+                const multipleAnswers = answer.split(',').map(a => a.trim());
+                await selectCheckboxes(question.element, multipleAnswers);
+                break;
+            default:
+                console.warn(`Unsupported question type: ${question.type}`);
         }
+        // Add a small delay between filling answers
+        await new Promise(resolve => setTimeout(resolve, 500));
+    } catch (error) {
+        console.error(`Error filling answer:`, error);
+        throw error;
     }
 }
 
 // Hàm điền vào câu hỏi tự luận
 function fillTextInput(questionElement, answer) {
-    const inputElement = questionElement.querySelector('.whsOnd.zHQkBf');
+    // Update selector for text input
+    const inputElement = questionElement.querySelector('.whsOnd.zHQkBf, .KHxj8b.tL9Q4c');
     if (inputElement) {
         inputElement.value = answer;
         inputElement.dispatchEvent(new Event("input", { bubbles: true }));
+        // Trigger change event
+        inputElement.dispatchEvent(new Event("change", { bubbles: true }));
     } else {
         console.warn("Text input element not found");
     }
@@ -311,19 +342,31 @@ async function generateText(prompt, apiKey) {
     }
 }
 
-// Listen for messages from popup
-chrome.runtime.onMessage.addListener(async function (request, sender, sendResponse) {
-    if (request.message === "fill_form") {
-        const isEnabled = await checkIfEnabled();
-        if (isEnabled) {
-            fillForm();
-        } else {
-            console.log("Extension is temporarily disabled");
+// Helper functions for progress tracking
+function updateProgress(percent) {
+    chrome.runtime.sendMessage({
+        type: 'progress',
+        progress: Math.round(percent)
+    });
+}
+
+function sendStatus(status, state) {
+    chrome.runtime.sendMessage({
+        type: 'status',
+        status: status,
+        state: state
+    });
+}
+
+function sendQuestionStatus(questionText, status) {
+    chrome.runtime.sendMessage({
+        type: 'question',
+        question: {
+            text: questionText,
+            status: status
         }
-    } else if (request.action === "updateDisabledState") {
-        console.log("Disabled state updated:", request.isDisabled);
-    }
-});
+    });
+}
 
 // Auto-fill when page loads (optional)
 window.addEventListener('load', async () => {

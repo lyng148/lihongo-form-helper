@@ -1,98 +1,111 @@
 # Lihongo Form Helper
 
-## Overview
-Lihongo Form Helper is a Chrome extension designed to automate form filling using Google's Gemini AI API. The extension specifically targets Google Forms and employs advanced natural language processing to intelligently analyze and complete form fields.
+A powerful Chrome/Edge extension that helps you automatically fill Google Forms using AI assistance.
 
+## Features
 
-
-
-### Key Features
-- Automatic form field detection and classification
-- AI-powered response generation
-- Support for multiple question types:
-    - Text input fields
-    - Radio button selections
-    - Checkbox groups
-- Temporary disable/enable functionality
-- API connection testing
-- Secure API key management
+- 🤖 AI-powered form filling using Google's Gemini AI
+- ⚡ Fast and efficient form completion
+- 🔒 Secure API key storage
+- ⏸️ Pause/Resume functionality
+- 📊 Progress tracking
+- 🎨 Modern and intuitive UI
+- 🌙 Dark mode support
+- 🔄 Auto-save functionality
 
 ## Installation
 
-### Prerequisites
-- Google Chrome Browser
-- Gemini AI API key from Google AI Studio
+### From Edge Add-ons Store
+1. Visit the Edge Add-ons Store
+2. Search for "Lihongo Form Helper"
+3. Click "Get" to install
 
-### Installation Steps
-1. Clone the repository
-2. Open Chrome and navigate to `chrome://extensions/`
+### Manual Installation
+1. Download the extension files
+2. Open Edge and go to `edge://extensions/`
 3. Enable "Developer mode"
-4. Click "Load unpacked"
-5. Select the extension directory
+4. Click "Load unpacked" and select the extension directory
 
-## Configuration
+## Usage
 
-### API Key Setup
-1. Visit [Google AI Studio](https://aistudio.google.com/apikey)
-2. Generate a new API key
-3. Open the extension popup
-4. Enter the API key in the designated field
-5. Click "Save API Key"
+1. Click the extension icon in your browser toolbar
+2. Enter your Gemini AI API key in settings
+3. Navigate to a Google Form
+4. Click "Start Filling" to begin
+5. Review and submit the form
 
-### Extension Settings
-- **Temporary Disable**: Toggle switch to temporarily disable the extension
-- **API Testing**: Verify API key functionality using the "Test API" button
+## Features in Detail
 
+### AI-Powered Form Filling
+- Uses Google's Gemini AI to understand and answer form questions
+- Supports various question types:
+  - Text input
+  - Multiple choice
+  - Checkboxes
+  - Dropdowns
 
+### Security
+- API key is encrypted before storage
+- No data is sent to external servers except for AI API calls
+- All data is stored locally in your browser
 
-## Security Considerations
+### User Interface
+- Clean and modern design
+- Progress tracking
+- Pause/Resume functionality
+- Dark mode support
+- Responsive layout
 
-### API Key Storage
-- Utilizes Chrome's secure storage API
-- Keys are synced across user's Chrome instances
-- No local storage of sensitive data
+## Privacy
 
-### Data Processing
-- All processing occurs client-side
-- No external data transmission except to Gemini AI
-- Form data remains within the browser context
+We take your privacy seriously. See our [Privacy Policy](privacy_policy.html) for details.
 
-## Limitations
-1. Only supports Google Forms platform
-2. Requires active internet connection
-3. Subject to Gemini AI API rate limits
-4. May require manual verification of AI-generated responses
+## Terms of Service
 
-## Troubleshooting
+Please read our [Terms of Service](terms_of_service.html) before using the extension.
 
-### Common Issues
-1. **API Key Invalid**
-    - Verify key in Google AI Studio
-    - Check for proper key format
-    - Test connection using popup interface
+## Support
 
-2. **Form Detection Failures**
-    - Ensure form is fully loaded
-    - Check for custom form elements
-    - Verify DOM structure matches expected patterns
+If you encounter any issues or have questions:
+- Check the [FAQ](FAQ.md)
+- Contact us at [Your Email]
+- Report issues on GitHub
 
-3. **Response Generation Issues**
-    - Check API quota limits
-    - Verify network connectivity
-    - Ensure question format is compatible
+## Development
 
-## Contributing
+### Prerequisites
+- Edge/Chrome browser
+- Gemini AI API key
+- Basic knowledge of JavaScript
+
+### Building from Source
+1. Clone the repository
+2. Install dependencies
+3. Build the extension
+4. Load it in Edge/Chrome
+
+### Contributing
 1. Fork the repository
 2. Create a feature branch
-3. Commit changes with descriptive messages
-4. Submit pull request with detailed description
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
 
-## Version History
-- 1.0.0: Initial release
-    - Basic form filling functionality
-    - Gemini AI integration
-    - User interface implementation
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Acknowledgments
-- Google Gemini AI team for API access
-- Chrome Extensions documentation
+
+- Google Forms
+- Gemini AI
+- Edge/Chrome Extension APIs
+- Contributors and users
+
+## Version History
+
+- v1.0.0 (March 4, 2024)
+  - Initial release
+  - Basic form filling functionality
+  - AI integration
+  - Progress tracking

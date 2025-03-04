@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Lihongo Form Helper - Main</title>
+        <link rel="stylesheet" href="styles.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>Lihongo Form Helper</h1>
+                <button id="openSettings" class="settings-button">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+
+            <div class="main-content">
+                <div class="status-section">
+                    <h2>Form Status</h2>
+                    <div id="formStatus" class="status-box">
+                        <div class="status-indicator"></div>
+                        <span>Ready to fill form</span>
+                    </div>
+                </div>
+
+                <div class="progress-section">
+                    <h2>Progress</h2>
+                    <div class="progress-container">
+                        <div id="progressBar" class="progress-bar">
+                            <div class="progress-fill"></div>
+                        </div>
+                        <div id="progressText" class="progress-text">0%</div>
+                    </div>
+                </div>
+
+                <div class="questions-section">
+                    <h2>Questions</h2>
+                    <div id="questionsList" class="questions-list">
+                        <!-- Questions will be populated here -->
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button id="startFilling" class="primary-button">Start Filling Form</button>
+                    <button id="pauseFilling" class="secondary-button" disabled>Pause</button>
+                </div>
+            </div>
+        </div>
+        <script src="main.js"></script>
+    </body>
+</html> 

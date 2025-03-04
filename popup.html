@@ -1,194 +1,20 @@
 <!DOCTYPE html>
+
 <html>
     <head>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" integrity="sha512-vKMx8UnXk60zUwyUnUPM3HbQo8QfmNx7+ltw8Pm5zLusl1XIfwcxo8DbWCqMGKaWeNxWA8yrx5v3SaVpMvR3CA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
         <title>Gemini AI Form Filler</title>
-        <style>
-            body {
-                width: 300px;
-                padding: 15px;
-                font-family: Arial, sans-serif;
-            }
-
-            .container {
-                background-color: #ffffff;
-                border-radius: 8px;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            }
-
-            h1 {
-                color: #1a73e8;
-                font-size: 20px;
-                margin-bottom: 20px;
-                text-align: center;
-            }
-
-            .form-group {
-                margin-bottom: 15px;
-            }
-
-            label {
-                display: block;
-                margin-bottom: 5px;
-                color: #5f6368;
-                font-size: 14px;
-            }
-
-            input[type="text"] {
-                width: 100%;
-                padding: 8px;
-                border: 1px solid #dadce0;
-                border-radius: 4px;
-                box-sizing: border-box;
-            }
-
-            input[type="text"]:focus {
-                outline: none;
-                border-color: #1a73e8;
-            }
-
-            .button-group {
-                display: flex;
-                gap: 10px;
-                margin-top: 15px;
-            }
-
-            button {
-                flex: 1;
-                padding: 8px 16px;
-                border: none;
-                border-radius: 4px;
-                cursor: pointer;
-                font-size: 14px;
-                transition: background-color 0.2s;
-            }
-
-            #saveApiKey {
-                background-color: #1a73e8;
-                color: white;
-            }
-
-            #saveApiKey:hover {
-                background-color: #1557b0;
-            }
-
-            #testApi {
-                background-color: #f8f9fa;
-                border: 1px solid #dadce0;
-                color: #3c4043;
-            }
-
-            #testApi:hover {
-                background-color: #f1f3f4;
-            }
-
-            .status {
-                margin-top: 15px;
-                padding: 10px;
-                border-radius: 4px;
-                font-size: 14px;
-                display: none;
-            }
-
-            .success {
-                background-color: #e6f4ea;
-                color: #1e8e3e;
-            }
-
-            .error {
-                background-color: #fce8e6;
-                color: #d93025;
-            }
-
-            .settings {
-                margin-top: 20px;
-                padding: 15px;
-                border-top: 1px solid #dadce0;
-            }
-
-            .switch {
-                position: relative;
-                display: inline-block;
-                width: 40px;
-                height: 20px;
-            }
-
-            .switch input {
-                opacity: 0;
-                width: 0;
-                height: 0;
-            }
-
-            .slider {
-                position: absolute;
-                cursor: pointer;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background-color: #ccc;
-                transition: .4s;
-                border-radius: 20px;
-            }
-
-            .slider:before {
-                position: absolute;
-                content: "";
-                height: 16px;
-                width: 16px;
-                left: 2px;
-                bottom: 2px;
-                background-color: white;
-                transition: .4s;
-                border-radius: 50%;
-            }
-
-            input:checked + .slider {
-                background-color: #1a73e8;
-            }
-
-            input:checked + .slider:before {
-                transform: translateX(20px);
-            }
-
-            .disabled-notice {
-                display: none;
-                margin-top: 10px;
-                padding: 8px;
-                background-color: #fef7e0;
-                color: #b45309;
-                border-radius: 4px;
-                font-size: 12px;
-                text-align: center;
-            }
-
-            .disabled-notice.visible {
-                display: block;
-            }
-
-            .model-select {
-                width: 100%;
-                padding: 8px;
-                border: 1px solid #dadce0;
-                border-radius: 4px;
-                background-color: white;
-                font-size: 14px;
-                color: #3c4043;
-                cursor: pointer;
-            }
-
-            .model-select:focus {
-                outline: none;
-                border-color: #1a73e8;
-            }
-        </style>
+        <link rel="stylesheet" href="styles.css">
     </head>
     <body>
         <div class="container">
             <h1>Lihongo Form Helper</h1>
 
             <div class="form-group">
-                <label for="apiKey">API Key: <br>Don't have any? Get one <a href="https://aistudio.google.com/apikey" target="_blank">here!</a></label>
+                <label for="apiKey">API Key: </label>
                 <input type="text" id="apiKey" placeholder="Enter your Gemini API key" />
+                <div><br>Don't have any? Get one <a href="https://aistudio.google.com/apikey" target="_blank">here!</a></div>
             </div>
             <div class="form-group">
                 <label for="modelSelect">Select Gemini Model:</label>
@@ -197,6 +23,7 @@
                     <option value="gemini-2.0-flash-lite-preview-02-05">Gemini 2.0 Flash-Lite Preview</option>
                     <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
                     <option value="gemini-1.5-flash-8b">Gemini 1.5 Flash-8B</option>
+                    <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
                 </select>
             </div>
 
@@ -210,7 +37,7 @@
             <div class="settings">
                 <div class="form-group">
                     <label>
-                        Temporarily Disable Extension
+                        Disable Extension
                         <label class="switch">
                             <input type="checkbox" id="temporaryDisable">
                             <span class="slider"></span>
@@ -218,7 +45,7 @@
                     </label>
                 </div>
                 <div id="disabledNotice" class="disabled-notice">
-                    Extension is temporarily disabled. Toggle switch to re-enable.
+                    Extension is disabled. Toggle switch to re-enable.
                 </div>
             </div>
         </div>

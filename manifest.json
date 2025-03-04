@@ -2,24 +2,48 @@
   "manifest_version": 3,
   "name": "Lihongo Form Helper",
   "version": "1.0",
-  "description": "Auto fill form",
+  "description": "Save time with AI-powered Google Forms auto-fill. Smart, secure, and easy to use.",
+  "author": "Lyan",
+  "minimum_edge_version": "88.0.0",
   "permissions": [
     "activeTab",
-    "storage"
+    "storage",
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://docs.google.com/forms/*",
+    "https://generativelanguage.googleapis.com/*"
   ],
   "content_scripts": [
     {
       "matches": ["https://docs.google.com/forms/*"],
-      "js": ["content.js"]
+      "js": ["content.js"],
+      "css": ["styles.css"]
     }
   ],
   "action": {
-    "default_popup": "popup.html",
+    "default_popup": "main.html",
     "default_icon": {
-      "16": "images/icon1.png",
-      "32": "images/icon1.png",
-      "48": "images/icon1.png",
-      "128": "images/icon1.png"
+      "16": "images/icon16.png",
+      "32": "images/icon32.png",
+      "48": "images/icon48.png",
+      "128": "images/icon128.png"
     }
+  },
+  "icons": {
+    "16": "images/icon16.png",
+    "32": "images/icon32.png",
+    "48": "images/icon48.png",
+    "128": "images/icon128.png"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "web_accessible_resources": [{
+    "resources": ["images/*", "styles.css"],
+    "matches": ["*://*.google.com/*"]
+  }],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
   }
 }
