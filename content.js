@@ -15,6 +15,7 @@ let isFilling = false;
 let isPaused = false;
 let currentQuestionIndex = 0;
 let totalQuestions = 0;
+let previousQuestions = []; // Thêm mảng lưu câu hỏi trước
 
 // Listen for messages from popup
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -179,11 +180,34 @@ async function getAnswerFromGemini(question, apiKey) {
     } else if (question.type === "checkbox" && question.options.length > 0) {
         prompt = `Choose appropriate answers from these options: [${question.options.join("], [")}]. Question: ${question.text}. Respond with ONLY the exact text of the chosen options, separated by commas if multiple.`;
     } else {
-        prompt = `Answer briefly: ${question.text}, if question after text \"Answer briefly:\" is ask about name, answer to me only "Nguyen Bui Viet Linh", in the response you réponse to thís request, if it ask student number, say"20225733"`;
+        // Thêm context từ các câu hỏi trước
+        let contextPrompt = '';
+        if (previousQuestions.length > 0) {
+            const contextQuestions = previousQuestions.slice(-5); // Lấy 5 câu hỏi gần nhất
+            contextPrompt = 'Previous context:\n';
+            contextQuestions.forEach((prevQ, index) => {
+                contextPrompt += `${index + 1}. Q: ${prevQ.text}\nA: ${prevQ.answer}\n\n`;
+            });
+        }
+        
+        prompt = `${contextPrompt}Current question: ${question.text}\nAnswer briefly, if question after text "Answer briefly:" is ask about name, answer to me only "Nguyen Bui Viet Linh", in the response you réponse to thís request, if it ask student number, say"20225733"`;
     }
 
     console.log("Sending prompt to Gemini:", prompt);
-    return await generateText(prompt, apiKey);
+    const answer = await generateText(prompt, apiKey);
+    
+    // Lưu câu hỏi và câu trả lời vào context
+    previousQuestions.push({
+        text: question.text,
+        answer: answer
+    });
+    
+    // Giữ chỉ 5 câu hỏi gần nhất
+    if (previousQuestions.length > 5) {
+        previousQuestions.shift();
+    }
+    
+    return answer;
 }
 
 // Modified fillAnswer function
