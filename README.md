@@ -3,7 +3,7 @@
   <img src="./images/icon128.png" alt="Lihongo Form Helper Logo">  
 </p>  
 
-🔥 **Extension is out now on the Edge Add-ons Store!** 🎉 [Get it here](https://microsoftedge.microsoft.com/addons/detail/lihongo-form-helper/ocfjhlodaigkbokkinbbcidcedpeefmf)  
+🔥🔥🔥 **Extension is out now on the Edge Add-ons Store!** 🎉 [Get it here](https://microsoftedge.microsoft.com/addons/detail/lihongo-form-helper/ocfjhlodaigkbokkinbbcidcedpeefmf)  
 
 A powerful Chrome/Edge extension that helps you automatically fill Google Forms using AI assistance.  
 
